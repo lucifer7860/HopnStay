@@ -1,0 +1,68 @@
+
+> hotelcompare@1.0.0 dev
+> next dev -p 3000
+
+   ▲ Next.js 15.5.18
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.109:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 12.7s
+   ▲ Next.js 15.5.18
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.109:3000
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 5s
+   Reload env: .env
+ ○ Compiling / ...
+ ✓ Compiled / in 15.5s (750 modules)
+ GET / 200 in 17722ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 1490ms (581 modules)
+ GET /api/auth/session 200 in 3174ms
+ ○ Compiling /search ...
+ ✓ Compiled /search in 4.5s (1086 modules)
+ GET /search?city=Bangalore&checkin=2026-06-10&checkout=2026-06-12&guests=2&rooms=1 200 in 4911ms
+ GET /search?city=Bangalore&checkin=2026-06-10&checkout=2026-06-12&guests=2&rooms=1 200 in 92ms
+ GET /search?city=Goa&checkin=2026-06-10&checkout=2026-06-12&guests=2&rooms=1 200 in 592ms
+ GET /api/auth/session 200 in 100ms
+ ○ Compiling /api/hotels/search ...
+ ✓ Compiled /api/hotels/search in 685ms (621 modules)
+ GET /api/hotels/search?city=Goa&checkin=2026-06-10&checkout=2026-06-12&guests=2&rooms=1&sort=recommended 200 in 898ms
+ ○ Compiling /api/track-click ...
+ ✓ Compiled /api/track-click in 549ms (625 modules)
+ POST /api/track-click 200 in 1172ms
+ GET /search?city=Goa&checkin=2026-06-10&checkout=2026-06-12&guests=2&rooms=1 200 in 790ms
+prisma:error 
+Invalid `prisma.affiliateClick.create()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /api/auth/session 200 in 27ms
+ GET /api/hotels/search?city=Goa&checkin=2026-06-10&checkout=2026-06-12&guests=2&rooms=1&sort=recommended 304 in 29ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 1498ms (1098 modules)
+ GET /login 200 in 1706ms
+ GET /api/auth/providers 200 in 82ms
+ GET /api/auth/csrf 200 in 25ms
+prisma:error 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ POST /api/auth/callback/credentials 401 in 4130ms
+ GET / 200 in 174ms
+ GET / 200 in 169ms
+ GET /search 200 in 146ms
+ GET /api/hotels/search?sort=recommended 200 in 48ms
+ GET /api/hotels/search?sort=recommended 304 in 16ms
+ GET /search?city=Prayagraj&checkin=2026-06-10&checkout=2026-06-12&guests=2&rooms=1 200 in 99ms
+ GET /api/hotels/search?city=Prayagraj&checkin=2026-06-10&checkout=2026-06-12&guests=2&rooms=1&sort=recommended 200 in 55ms
+ GET / 200 in 84ms

@@ -1,0 +1,22 @@
+# Production Verification Report
+
+- App name: HopnStay
+- Deployment URL: Pending
+- Deployment date: Pending
+- Git commit: Pending
+- Vercel deployment ID: Pending
+- Supabase project: Pending
+- Build status: Local `npm run build` passed after the HopnStay rename
+- Typecheck status: Local `npm run typecheck` passed after the HopnStay rename
+- Test status: Local `npm test` passed after the HopnStay rename: 7 test files, 19 tests
+- Audit status: `npm install` completed with 0 vulnerabilities
+- Migration status: Local `npm run db:deploy` is pending a reachable PostgreSQL database; the default local URL is `localhost:5432/hopnstay`
+- Seed status: Local `npm run db:seed` is pending a reachable PostgreSQL database; production seed still requires real strong credentials
+- Environment validation status: production-shaped values pass; local dev env correctly fails because production secrets are intentionally missing
+- Smoke test status: Local page/API smoke is pending a reachable database for database-backed routes; non-database pages build successfully
+- Affiliate flow status: unit tests pass; database-backed `/api/track-click` smoke is pending PostgreSQL or Supabase connection
+- Click tracking status: hashed IP unit test passes; raw IP is not stored by the click tracking service
+- Admin analytics status: admin-protected API implemented and reads `AffiliateClick`; live dashboard verification pending admin login with seeded database
+- Provider health status: admin-protected API implemented and does not return secrets; live dashboard verification pending admin login with seeded database
+- Known issues: production deployment pending real Supabase/Vercel credentials; local PostgreSQL is not currently available on the default connection string
+- Next actions: create Supabase project, add Vercel env vars, run migrations, run production seed with strong admin credentials, deploy, then complete smoke test

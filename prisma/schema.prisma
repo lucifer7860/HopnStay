@@ -1,0 +1,210 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum BookingStatus {
+  DISPLAY_ONLY
+  CANCELLED
+}
+
+model User {
+  id              String           @id @default(cuid())
+  name            String?
+  email           String?          @unique
+  emailVerified   DateTime?
+  image           String?
+  passwordHash    String?
+  role            Role             @default(USER)
+  accounts        Account[]
+  sessions        Session[]
+  bookings        Booking[]
+  reviews         Review[]
+  wishlists       Wishlist[]
+  affiliateClicks AffiliateClick[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Hotel {
+  id                   String           @id @default(cuid())
+  slug                 String           @unique
+  name                 String
+  description          String           @db.Text
+  shortDescription     String?
+  city                 String
+  country              String
+  address              String
+  latitude             Float
+  longitude            Float
+  distanceFromCenterKm Float?
+  starRating           Int
+  averageRating        Float
+  reviewCount          Int              @default(0)
+  amenities            String[]         @default([])
+  images               String[]         @default([])
+  provider             String
+  externalProviderId   String?
+  bookingUrl           String?          @db.Text
+  rooms                Room[]
+  bookings             Booking[]
+  reviews              Review[]
+  wishlists            Wishlist[]
+  affiliateClicks      AffiliateClick[] @relation("HotelAffiliateClicks")
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  @@index([city])
+  @@index([provider])
+  @@index([externalProviderId])
+}
+
+model Room {
+  id             String   @id @default(cuid())
+  hotelId        String
+  name           String
+  description    String?  @db.Text
+  capacity       Int
+  bedType        String
+  pricePerNight  Decimal  @db.Decimal(10, 2)
+  currency       String   @default("INR")
+  availableRooms Int      @default(0)
+  amenities      String[] @default([])
+  images         String[] @default([])
+  refundable     Boolean  @default(false)
+  hotel          Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([hotelId])
+}
+
+model Booking {
+  id                String        @id @default(cuid())
+  userId            String?
+  hotelId           String?
+  hotelName         String?
+  provider          String?
+  externalReference String?
+  status            BookingStatus @default(DISPLAY_ONLY)
+  displayNote       String?       @db.Text
+  totalAmount       Decimal?      @db.Decimal(10, 2)
+  currency          String?
+  user              User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  hotel             Hotel?        @relation(fields: [hotelId], references: [id], onDelete: SetNull)
+  reviews           Review[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([hotelId])
+}
+
+model Review {
+  id        String       @id @default(cuid())
+  userId    String?
+  hotelId   String
+  bookingId String?
+  rating    Int
+  title     String
+  comment   String       @db.Text
+  status    ReviewStatus @default(APPROVED)
+  user      User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  hotel     Hotel        @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  booking   Booking?     @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([userId])
+  @@index([hotelId])
+  @@index([status])
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  hotelId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hotel     Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, hotelId])
+  @@index([hotelId])
+}
+
+model AffiliateClick {
+  id            String   @id @default(cuid())
+  userId        String?
+  hotelId       String
+  hotelRecordId String?
+  hotelName     String?
+  provider      String
+  bookingUrl    String?  @db.Text
+  source        String?
+  searchContext Json?
+  userAgent     String?
+  referrer      String?
+  ipHash        String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  hotel         Hotel?   @relation("HotelAffiliateClicks", fields: [hotelRecordId], references: [id], onDelete: SetNull)
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([hotelId])
+  @@index([hotelRecordId])
+  @@index([provider])
+  @@index([createdAt])
+}
