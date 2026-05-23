@@ -3,10 +3,19 @@
 ## Supabase Setup
 
 1. Create a Supabase project.
-2. Copy the pooled connection string for `DATABASE_URL`.
-3. Copy the direct/session connection string for `DIRECT_URL`.
+2. Copy the Supabase transaction pooler connection string for `DATABASE_URL`.
+3. Copy the Supabase session pooler connection string for `DIRECT_URL`.
 4. Confirm SSL requirements are enabled in the connection strings.
 5. Add `DATABASE_URL` and `DIRECT_URL` to Vercel.
+
+For Vercel, prefer these shapes:
+
+```env
+DATABASE_URL=postgresql://postgres.[PROJECT_REF]:[DATABASE_PASSWORD]@[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
+DIRECT_URL=postgresql://postgres.[PROJECT_REF]:[DATABASE_PASSWORD]@[REGION].pooler.supabase.com:5432/postgres
+```
+
+The direct host, `db.[PROJECT_REF].supabase.co:5432`, may be unreachable from Vercel if the direct route requires IPv6. The session pooler is the safer migration connection for Vercel builds.
 6. Run:
 
 ```bash
@@ -71,4 +80,4 @@ Run this before production deploy with real production-shaped values:
 npm run validate:production-env
 ```
 
-The validator rejects localhost URLs, placeholder secrets, weak seed passwords, non-Supabase pooled production `DATABASE_URL`, pooled `DIRECT_URL`, and missing Travelpayouts credentials when Travelpayouts is enabled.
+The validator rejects localhost URLs, placeholder secrets, weak seed passwords, a non-Supabase transaction-pooler `DATABASE_URL`, invalid `DIRECT_URL` values, and missing Travelpayouts credentials when Travelpayouts is enabled.

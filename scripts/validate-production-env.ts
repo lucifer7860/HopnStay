@@ -18,7 +18,7 @@ const required = [
 const weakPasswords = new Set(["password", "password123", "password123456", "admin", "admin123", "changeme", "letmein"]);
 const placeholders = ["replace-with", "generate-a-long", "your-production-domain", "[PROJECT_REF]", "[DATABASE_PASSWORD]", "[REGION]"];
 
-function fail(message: string) {
+function fail(message: string): never {
   throw new Error(message);
 }
 
@@ -53,6 +53,31 @@ function requirePostgres(name: string) {
   }
 }
 
+function parsePostgresUrl(name: string) {
+  const value = get(name);
+  try {
+    return new URL(value);
+  } catch {
+    fail(`${name} must be a valid PostgreSQL connection string`);
+  }
+}
+
+function isSupabasePooler(parsed: URL) {
+  return parsed.hostname.endsWith(".pooler.supabase.com");
+}
+
+function isSupabaseTransactionPooler(parsed: URL) {
+  return isSupabasePooler(parsed) && parsed.port === "6543";
+}
+
+function isSupabaseSessionPooler(parsed: URL) {
+  return isSupabasePooler(parsed) && parsed.port === "5432";
+}
+
+function isSupabaseDirectHost(parsed: URL) {
+  return parsed.hostname.startsWith("db.") && parsed.hostname.endsWith(".supabase.co") && parsed.port === "5432";
+}
+
 function containsPlaceholder(value: string) {
   return placeholders.some((placeholder) => value.toLowerCase().includes(placeholder.toLowerCase()));
 }
@@ -71,11 +96,16 @@ function validate() {
 
   requirePostgres("DATABASE_URL");
   requirePostgres("DIRECT_URL");
-  if (!get("DATABASE_URL").includes("pooler.supabase.com")) {
-    fail("DATABASE_URL must use Supabase pooled connection for production");
+  const databaseUrl = parsePostgresUrl("DATABASE_URL");
+  const directUrl = parsePostgresUrl("DIRECT_URL");
+  if (!isSupabaseTransactionPooler(databaseUrl)) {
+    fail("DATABASE_URL must use the Supabase transaction pooler on port 6543 for production");
   }
-  if (get("DIRECT_URL").includes("pooler.supabase.com")) {
-    fail("DIRECT_URL must use the direct Supabase connection, not the pooled connection");
+  if (databaseUrl.searchParams.get("pgbouncer") !== "true") {
+    fail("DATABASE_URL must include pgbouncer=true for Prisma with the Supabase transaction pooler");
+  }
+  if (!isSupabaseSessionPooler(directUrl) && !isSupabaseDirectHost(directUrl)) {
+    fail("DIRECT_URL must use either the Supabase session pooler on port 5432 or the direct Supabase host on port 5432");
   }
 
   requireHttps("NEXTAUTH_URL");
